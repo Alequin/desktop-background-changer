@@ -3,25 +3,31 @@ require "pathname"
 
 class BackgroundImageLooper
 
-  attr_accessor :current_path, :image_switch_timer
+  attr_accessor :current_path, :image_switch_timer, :image_selection_random
 
   #The console command used by Gnome 3 to set the background image
   @@SET_BACKGROUND_COMMAND = 'gsettings set org.gnome.desktop.background picture-uri "file://'
   @@VALID_FORMATS = [".jpg", ".png"]
 
-  def initialize(inital_path, image_switch_timer)
-    @current_path = inital_path
-    puts "Loading images from #{@current_path} \n\n"
-    @images = load_images(@current_path)
-    @image_switch_timer = image_switch_timer
+  def initialize
+    @image_switch_timer = 3600
+    @image_selection_random = true
   end
 
   def start_loop
     image_to_use = nil
+    last_used_index = 0
     loop{
-      image_to_use = get_next_image(image_to_use)
+      if(@image_selection_random)
+        image_to_use = get_random_image(image_to_use)
+      else
+        image_to_use = @images[last_used_index]
+        last_used_index += 1
+        if(last_used_index >= @images.length)
+          last_used_index = 0
+        end
+      end
       set_background_image(image_to_use)
-      puts "Image changed to #{image_to_use.scan(/\w+\.\w+/)[0]}"
       sleep @image_switch_timer
     }
   end
@@ -45,7 +51,7 @@ class BackgroundImageLooper
   def get_image_names
     image_names = Array.new
     @images.each_with_index{ |image, index|
-      image_names.push(image.scan(/\w+\.\w+/)[0])
+      image_names.push(image.scan(/\w*[-|_]?\w+\.\w+/)[0])
     }
     return image_names
   end
@@ -60,7 +66,7 @@ class BackgroundImageLooper
   end
 
   #reload the images from the current path
-  def reload_images
+  def load_current_file_images
     @images = load_images(@current_path)
   end
 
@@ -73,15 +79,17 @@ class BackgroundImageLooper
   def load_images(path_to_images)
     #grab all image files (full path included)
     @current_path = path_to_images
+    puts "Loading images from #{@current_path} \n\n"
     return remove_non_image_files(Dir["#{path_to_images}*"])
   end
 
   def set_background_image(image_path)
     #run system command to set background image
     system(@@SET_BACKGROUND_COMMAND + image_path + '"')
+    puts "Image changed to #{image_path.scan(/\w*[-|_]?\w+\.\w+/)[0]}"
   end
 
-  def get_next_image(previous_image)
+  def get_random_image(previous_image)
     loop{
       new_image = @images[rand(@images.length)]
       #check image new_image is not equal to previous image

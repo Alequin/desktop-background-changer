@@ -1,12 +1,13 @@
 require_relative "BackgroundImageLooper"
 
 $DATA_FILE_PATH = "data.txt"
-$LOOPER = BackgroundImageLooper.new("/home/", 3600)
+$LOOPER = BackgroundImageLooper.new
 
 def write_to_data_file
-  File.open($DATA_FILE_PATH, "w+") { |file|
+  File.open($DATA_FILE_PATH, "w") { |file|
     file.write("#{$LOOPER.current_path}\n")
     file.write("#{$LOOPER.image_switch_timer}\n")
+    file.write("#{$LOOPER.image_selection_random}\n")
   }
 end
 
@@ -74,13 +75,14 @@ if(data == nil || data.size == 0)
   loop{
     break if ask_user_for_new_file_path
   }
-  #once a valid file path is given load image from that path
-  $LOOPER.reload_images
   write_to_data_file
 else
-  $LOOPER.current_path = data[0]
-  $LOOPER.image_switch_timer = data[1].to_i
+  $LOOPER.set_new_file_location(data[0].sub("\n",""))
+  $LOOPER.image_switch_timer = data[1].sub("\n","").to_i
+  $LOOPER.image_selection_random = data[2].sub("\n","")
 end
+
+$LOOPER.load_current_file_images
 
 loop{
   puts "Select an option \n" +
@@ -91,6 +93,7 @@ loop{
   "(5) Print images names\n" +
   "(6) Remove images from current list\n" +
   "(7) Re-load images from file\n" +
+  "(8) Toggle image randomisation\n" +
   "\n" +
   "(0) Exit"
 
@@ -115,7 +118,16 @@ loop{
     puts
     ask_user_to_remove_images
   when 7
-    $LOOPER.reload_images
+    $LOOPER.load_current_file_images
+  when 8
+    $LOOPER.image_selection_random = !$LOOPER.image_selection_random
+    print "Image selction "
+    if($LOOPER.image_selection_random)
+      puts "random"
+    else
+      puts "linear"
+    end
+    write_to_data_file
   when 0
     exit
   else
