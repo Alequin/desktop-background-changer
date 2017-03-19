@@ -4,16 +4,17 @@ require "pathname"
 class BackgroundImageLooper
 
   attr_reader :current_path
+  attr_accessor :image_switch_timer
 
   #The console command used by Gnome 3 to set the background image
   @@SET_BACKGROUND_COMMAND = 'gsettings set org.gnome.desktop.background picture-uri "file://'
   @@VALID_FORMATS = [".jpg", ".png"]
 
-  def initialize(inital_path)
+  def initialize(inital_path, image_switch_timer)
     @current_path = inital_path
     puts "Loading images from #{@current_path} \n\n"
     @images = load_images(@current_path)
-    @image_switch_timer = 5
+    @image_switch_timer = image_switch_timer
   end
 
   def start_loop
