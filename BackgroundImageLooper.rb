@@ -1,4 +1,5 @@
 require_relative "user_input"
+require "pathname"
 
 class BackgroundImageLooper
 
@@ -25,8 +26,23 @@ class BackgroundImageLooper
 
   def get_new_file_location
     puts "Please input a valid file location\n Example: /home/alequin/Pictures/\n"
-    print "Your file locaton:"
-    new_files = load_images(gets.chomp)
+    print "Your file location: "
+    file_path = Pathname.new(gets.chomp)
+    if(!file_path.exist?)
+      puts "Sorry the file path does not exist. Please check the entered path\n" +
+      "Entered path: #{file_path.to_s}"
+      sleep 2
+      return
+    end
+    new_files = load_images(file_path.to_s)
+    if(new_files.length == 0)
+      puts "Sorry the specified location contains no files please use another " +
+      "path or provide this path with files"
+      sleep 2
+      return
+    end
+    #If no issues raised set @images to new_files
+    @images = new_files
   end
 
   private
@@ -49,6 +65,24 @@ class BackgroundImageLooper
         return new_image
       end
     }
+  end
+
+  #removes all files in @images that are not jpg or png
+  def remove_non_image_files
+
+    valid_images = Array.new
+    valid_formats = [".jpg", ".png"]
+
+    @images.each{ |image_path|
+
+      current_image_format = image_path.scan(/\.w+/)
+      valid_formats.each{ |valid_image_format|
+        if(valid_image_format = current_image_format)
+          valid_images.push(image_path)
+        end
+      }
+    }
+
   end
 
 end
