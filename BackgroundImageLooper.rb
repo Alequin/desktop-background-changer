@@ -53,9 +53,18 @@ class BackgroundImageLooper
     return image_names
   end
 
-  #Remove one or more images from the @images array
-  def remove_from_images()
+  def get_image_count
+    return @images.length
+  end
 
+  #Remove one or more images from the @images array
+  def remove_from_images(to_remove)
+      @images.delete_at(to_remove)
+  end
+
+  #reload the images from the current path
+  def reload_images
+    @images = load_images(@current_path)
   end
 
   private

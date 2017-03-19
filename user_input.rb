@@ -12,4 +12,16 @@ module UserInput
     }
   end
 
+  def self.get_int_input()
+
+    loop{
+      selected_position = gets.chomp
+      if(selected_position.scan(/^-?\d+$/).size != 0)
+        return selected_position.to_i
+      end
+      puts "Sorry the value has to be an integer"
+      print "Try again: "
+    }
+  end
+
 end
