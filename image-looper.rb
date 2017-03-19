@@ -1,19 +1,33 @@
 require_relative "BackgroundImageLooper"
 
-looper = BackgroundImageLooper.new
+$LOOPER = BackgroundImageLooper.new("/home/alequin/Pictures/Wallpapers/")
+
+def print_image_names
+  $LOOPER.get_image_names.each_with_index{ |image,index|
+      puts "#{index+1}: #{image}"
+  }
+end
 
 loop{
   puts "Select an option \n" +
   "(1) Start \n" +
-  "(2) Change image source file \n\n" +
+  "(2) Change image source file \n" +
+  "(3) Print directory in use\n" +
+  "(4) Print images names\n" +
+  "\n" +
   "(9) Exit"
 
-  case UserInput.get_single_digit_input
+  user_selection = UserInput.get_single_digit_input
+  puts
+  case user_selection
   when 1
-    looper.start_loop
+    $LOOPER.start_loop
   when 2
-    puts
-    looper.get_new_file_location
+    $LOOPER.get_new_file_location
+  when 3
+    puts $LOOPER.current_path
+  when 4
+    print_image_names
   when 9
     exit
   else

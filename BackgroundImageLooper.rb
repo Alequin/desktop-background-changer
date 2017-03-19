@@ -9,8 +9,8 @@ class BackgroundImageLooper
   @@SET_BACKGROUND_COMMAND = 'gsettings set org.gnome.desktop.background picture-uri "file://'
   @@VALID_FORMATS = [".jpg", ".png"]
 
-  def initialize
-    @current_path = "/home/alequin/Pictures/Wallpapers/"
+  def initialize(inital_path)
+    @current_path = inital_path
     puts "Loading images from #{@current_path} \n\n"
     @images = load_images(@current_path)
     @image_switch_timer = 5
@@ -50,10 +50,12 @@ class BackgroundImageLooper
     @images = new_files
   end
 
-  def print_image_names
+  def get_image_names
+    image_names = Array.new
     @images.each_with_index{ |image, index|
-      puts"#{index+1}: #{image.scan(/\w+\.\w+/)}"
+      image_names.push(image.scan(/\w+\.\w+/)[0])
     }
+    return image_names
   end
 
   private
