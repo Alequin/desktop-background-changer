@@ -22,7 +22,7 @@ class BackgroundImageLooper
     loop{
       image_to_use = get_next_image(image_to_use)
       set_background_image(image_to_use)
-      puts "Image changed to #{image_to_use.scan(/\w+\.\w+/)}"
+      puts "Image changed to #{image_to_use.scan(/\w+\.\w+/)[0]}"
       sleep @image_switch_timer
     }
   end
@@ -83,10 +83,8 @@ class BackgroundImageLooper
   def remove_non_image_files(files)
 
     valid_images = Array.new
-
     files.each{ |image_path|
-
-      current_image_format = image_path.scan(/\.\w+/)
+      current_image_format = image_path.scan(/\.\w+/)[0]
       @@VALID_FORMATS.each{ |valid_image_format|
         if(valid_image_format == current_image_format)
           valid_images.push(image_path)
@@ -94,7 +92,6 @@ class BackgroundImageLooper
         end
       }
     }
-
     return valid_images
   end
 
