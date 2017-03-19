@@ -26,20 +26,15 @@ class BackgroundImageLooper
     }
   end
 
-  # asks user for a valid file location. If one is not given returns false
-  def get_new_file_location
-    puts "Please input a valid file location\n Example: /home/user/Pictures/\n"
-    print "Your file location: "
+  def set_new_file_location(new_path)
 
-    file_path = gets.chomp
-    return if !path_exists?(file_path)
+    if(!File.exist?(new_path))
+      raise IOError, "File does not exist"
+    end
 
-    new_files = load_images(file_path)
+    new_files = load_images(new_path)
 
     if(new_files.length == 0)
-      puts "Sorry the specified location contains no usable files please use another " +
-      "path or provide this path with files of a valid format: #{@@VALID_FORMATS.join(", ")}"
-      sleep 2
       return false
     end
     #If no issues raised set @images to new_files
@@ -67,6 +62,10 @@ class BackgroundImageLooper
   #reload the images from the current path
   def reload_images
     @images = load_images(@current_path)
+  end
+
+  def get_valid_formats_as_string
+    return "#{@@VALID_FORMATS.join(", ")}"
   end
 
   private

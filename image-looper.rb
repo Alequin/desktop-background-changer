@@ -22,6 +22,26 @@ def ask_user_for_new_image_switch_timer
   $LOOPER.image_switch_timer = UserInput.get_int_input*60
 end
 
+def ask_user_for_new_file_path
+
+    puts "Please input a valid file location\n Example: /home/user/Pictures/\n"
+    print "Your file location: "
+
+    file_path = gets.chomp
+
+    if (!File.exist?(file_path))
+      puts "Sorry the file location does not exist"
+      return false
+    end
+
+    if(!$LOOPER.set_new_file_location(file_path))
+      puts "Sorry the requested file location does not hold any valid images: #{$LOOPER.get_valid_formats_as_string}"
+      return false
+    end
+    return true
+end
+
+
 def ask_user_to_remove_images
   puts "Enter the numbers of the images you want to remove. Enter 0 when you are done"
   loop{
@@ -52,7 +72,7 @@ end
 
 if(data == nil || data.size == 0)
   loop{
-    break if $LOOPER.get_new_file_location
+    break if ask_user_for_new_file_path
   }
   #once a valid file path is given load image from that path
   $LOOPER.reload_images
@@ -81,7 +101,7 @@ loop{
     puts "Loop starting"
     $LOOPER.start_loop
   when 2
-    $LOOPER.get_new_file_location
+    ask_user_for_new_file_path
     write_to_data_file
   when 3
     ask_user_for_new_image_switch_timer
