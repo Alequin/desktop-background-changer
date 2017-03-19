@@ -3,13 +3,16 @@ require "pathname"
 
 class BackgroundImageLooper
 
+  attr_reader :current_path
+
   #The console command used by Gnome 3 to set the background image
   @@SET_BACKGROUND_COMMAND = 'gsettings set org.gnome.desktop.background picture-uri "file://'
+  @@VALID_FORMATS = [".jpg", ".png"]
 
   def initialize
-    default_image_path = "/home/alequin/Pictures/Wallpapers/"
-    puts "Loading images from #{default_image_path} \n\n"
-    @images = load_images(default_image_path)
+    @current_path = "/home/alequin/Pictures/Wallpapers/"
+    puts "Loading images from #{@current_path} \n\n"
+    @images = load_images(@current_path)
     @image_switch_timer = 5
   end
 
@@ -35,21 +38,29 @@ class BackgroundImageLooper
       return
     end
     new_files = load_images(file_path.to_s)
+
     if(new_files.length == 0)
-      puts "Sorry the specified location contains no files please use another " +
-      "path or provide this path with files"
+      puts "Sorry the specified location contains no usable files please use another " +
+      "path or provide this path with files of a valid format: #{@@VALID_FORMATS.join(", ")}"
       sleep 2
       return
     end
     #If no issues raised set @images to new_files
+    @current_path = file_path.to_s
     @images = new_files
+  end
+
+  def print_image_names
+    @images.each_with_index{ |image, index|
+      puts"#{index+1}: #{image.scan(/\w+\.\w+/)}"
+    }
   end
 
   private
 
   def load_images(path_to_images)
     #grab all image files (full path included)
-    return Dir["#{path_to_images}*"]
+    return remove_non_image_files(Dir["#{path_to_images}*"])
   end
 
   def set_background_image(image_path)
@@ -67,22 +78,24 @@ class BackgroundImageLooper
     }
   end
 
-  #removes all files in @images that are not jpg or png
-  def remove_non_image_files
+  #removes all file paths from the given array that are not jpg or png
+  #and returns a new array
+  def remove_non_image_files(files)
 
     valid_images = Array.new
-    valid_formats = [".jpg", ".png"]
 
-    @images.each{ |image_path|
+    files.each{ |image_path|
 
-      current_image_format = image_path.scan(/\.w+/)
-      valid_formats.each{ |valid_image_format|
-        if(valid_image_format = current_image_format)
+      current_image_format = image_path.scan(/\.\w+/)
+      @@VALID_FORMATS.each{ |valid_image_format|
+        if(valid_image_format == current_image_format)
           valid_images.push(image_path)
+          break;
         end
       }
     }
 
+    return valid_images
   end
 
 end
