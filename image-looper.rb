@@ -1,6 +1,14 @@
 require_relative "BackgroundImageLooper"
 
-$LOOPER = BackgroundImageLooper.new("/home/alequin/Pictures/Wallpapers/", 3600)
+$DATA_FILE_PATH = "data.txt"
+$LOOPER = BackgroundImageLooper.new("/home/", 3600)
+
+def write_to_data_file
+  File.open($DATA_FILE_PATH, "w+") { |file|
+    file.write("#{$LOOPER.current_path}\n")
+    file.write("#{$LOOPER.image_switch_timer}\n")
+  }
+end
 
 def print_image_names
   $LOOPER.get_image_names.each_with_index{ |image,index|
@@ -8,7 +16,13 @@ def print_image_names
   }
 end
 
-def run_image_removal
+def ask_user_for_new_image_switch_timer
+  puts "Current timer: #{$LOOPER.image_switch_timer / 60} minutes"
+  print "New time in minutes: "
+  $LOOPER.image_switch_timer = UserInput.get_int_input*60
+end
+
+def ask_user_to_remove_images
   puts "Enter the numbers of the images you want to remove. Enter 0 when you are done"
   loop{
     image_count = $LOOPER.get_image_count
@@ -31,6 +45,23 @@ def run_image_removal
   }
 end
 
+data = nil
+if(File.exist?($DATA_FILE_PATH))
+  data = File.readlines($DATA_FILE_PATH)
+end
+
+if(data == nil || data.size == 0)
+  loop{
+    break if $LOOPER.get_new_file_location
+  }
+  #once a valid file path is given load image from that path
+  $LOOPER.reload_images
+  write_to_data_file
+else
+  $LOOPER.current_path = data[0]
+  $LOOPER.image_switch_timer = data[1].to_i
+end
+
 loop{
   puts "Select an option \n" +
   "(1) Start \n" +
@@ -51,10 +82,10 @@ loop{
     $LOOPER.start_loop
   when 2
     $LOOPER.get_new_file_location
+    write_to_data_file
   when 3
-    puts "Current timer: #{$LOOPER.image_switch_timer/60} minutes"
-    print "New time in minutes: "
-    $LOOPER.image_switch_timer = UserInput.get_int_input*60
+    ask_user_for_new_image_switch_timer
+    write_to_data_file
   when 4
     puts $LOOPER.current_path
   when 5
@@ -62,7 +93,7 @@ loop{
   when 6
     print_image_names
     puts
-    run_image_removal
+    ask_user_to_remove_images
   when 7
     $LOOPER.reload_images
   when 0

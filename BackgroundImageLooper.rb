@@ -3,8 +3,7 @@ require "pathname"
 
 class BackgroundImageLooper
 
-  attr_reader :current_path
-  attr_accessor :image_switch_timer
+  attr_accessor :current_path, :image_switch_timer
 
   #The console command used by Gnome 3 to set the background image
   @@SET_BACKGROUND_COMMAND = 'gsettings set org.gnome.desktop.background picture-uri "file://'
@@ -27,6 +26,7 @@ class BackgroundImageLooper
     }
   end
 
+  # asks user for a valid file location. If one is not given returns false
   def get_new_file_location
     puts "Please input a valid file location\n Example: /home/user/Pictures/\n"
     print "Your file location: "
@@ -40,10 +40,11 @@ class BackgroundImageLooper
       puts "Sorry the specified location contains no usable files please use another " +
       "path or provide this path with files of a valid format: #{@@VALID_FORMATS.join(", ")}"
       sleep 2
-      return
+      return false
     end
     #If no issues raised set @images to new_files
     @images = new_files
+    return true
   end
 
   def get_image_names
