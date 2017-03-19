@@ -21,6 +21,7 @@ loop{
   puts
   case user_selection
   when 1
+    puts "Loop starting"
     $LOOPER.start_loop
   when 2
     $LOOPER.get_new_file_location

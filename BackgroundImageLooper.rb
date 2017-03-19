@@ -17,7 +17,6 @@ class BackgroundImageLooper
   end
 
   def start_loop
-    puts "Loop starting"
     image_to_use = nil
     loop{
       image_to_use = get_next_image(image_to_use)
@@ -28,16 +27,13 @@ class BackgroundImageLooper
   end
 
   def get_new_file_location
-    puts "Please input a valid file location\n Example: /home/alequin/Pictures/\n"
+    puts "Please input a valid file location\n Example: /home/user/Pictures/\n"
     print "Your file location: "
-    file_path = Pathname.new(gets.chomp)
-    if(!file_path.exist?)
-      puts "Sorry the file path does not exist. Please check the entered path\n" +
-      "Entered path: #{file_path.to_s}"
-      sleep 2
-      return
-    end
-    new_files = load_images(file_path.to_s)
+
+    file_path = gets.chomp
+    return if !path_exists?(file_path)
+
+    new_files = load_images(file_path)
 
     if(new_files.length == 0)
       puts "Sorry the specified location contains no usable files please use another " +
@@ -46,7 +42,6 @@ class BackgroundImageLooper
       return
     end
     #If no issues raised set @images to new_files
-    @current_path = file_path.to_s
     @images = new_files
   end
 
@@ -58,10 +53,16 @@ class BackgroundImageLooper
     return image_names
   end
 
+  #Remove one or more images from the @images array
+  def remove_from_images()
+
+  end
+
   private
 
   def load_images(path_to_images)
     #grab all image files (full path included)
+    @current_path = path_to_images
     return remove_non_image_files(Dir["#{path_to_images}*"])
   end
 
@@ -80,8 +81,8 @@ class BackgroundImageLooper
     }
   end
 
-  #removes all file paths from the given array that are not jpg or png
-  #and returns a new array
+  #removes all file paths from the given array that are not defined by
+  #@@VALID_FORMATS and returns a new array
   def remove_non_image_files(files)
 
     valid_images = Array.new
@@ -95,6 +96,17 @@ class BackgroundImageLooper
       }
     }
     return valid_images
+  end
+
+  #checks if path exists. Returns false and informs the user if it does not
+  def path_exists?(path)
+    if(!Pathname.new(path).exist?)
+      puts "Sorry the file path does not exist. Please check the entered path\n" +
+      "Entered path: #{path}"
+      sleep 2
+      return false
+    end
+    return true;
   end
 
 end
