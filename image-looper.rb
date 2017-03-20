@@ -20,7 +20,16 @@ end
 def ask_user_for_new_image_switch_timer
   puts "Current timer: #{$LOOPER.image_switch_timer / 60} minutes"
   print "New time in minutes: "
-  $LOOPER.image_switch_timer = UserInput.get_int_input*60
+  new_time = nil
+  loop{
+    new_time = UserInput.get_int_input*60
+    if(new_time <=0)
+      print "Value must be greater than zero: "
+    else
+      break
+    end
+  }
+  $LOOPER.image_switch_timer = new_time
 end
 
 def ask_user_for_new_file_path
@@ -121,7 +130,7 @@ loop{
     $LOOPER.load_current_file_images
   when 8
     $LOOPER.image_selection_random = !$LOOPER.image_selection_random
-    print "Image selction "
+    print "Image selection "
     if($LOOPER.image_selection_random)
       puts "random"
     else

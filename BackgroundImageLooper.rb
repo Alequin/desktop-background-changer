@@ -38,11 +38,10 @@ class BackgroundImageLooper
       raise IOError, "File does not exist"
     end
 
-    new_files = load_images(new_path)
-
-    if(new_files.length == 0)
+    if(!new_files = load_images(new_path))
       return false
     end
+
     #If no issues raised set @images to new_files
     @images = new_files
     return true
@@ -51,7 +50,7 @@ class BackgroundImageLooper
   def get_image_names
     image_names = Array.new
     @images.each_with_index{ |image, index|
-      image_names.push(image.scan(/\w*[-|_]?\w+\.\w+/)[0])
+      image_names.push(image.scan(/[\w+,_,\s,-]+\.\w+$/)[0])
     }
     return image_names
   end
@@ -78,15 +77,19 @@ class BackgroundImageLooper
 
   def load_images(path_to_images)
     #grab all image files (full path included)
-    @current_path = path_to_images
     puts "Loading images from #{@current_path} \n\n"
-    return remove_non_image_files(Dir["#{path_to_images}*"])
+    loaded_images = remove_non_image_files(Dir["#{path_to_images}*"])
+    if(loaded_images.length == 0)
+      return false
+    end
+    @current_path = path_to_images
+    return loaded_images
   end
 
   def set_background_image(image_path)
     #run system command to set background image
     system(@@SET_BACKGROUND_COMMAND + image_path + '"')
-    puts "Image changed to #{image_path.scan(/\w*[-|_]?\w+\.\w+/)[0]}"
+    puts "Image changed to #{image_path.scan(/[\w+,_,\s,-]+\.\w+$/)[0]}"
   end
 
   def get_random_image(previous_image)
