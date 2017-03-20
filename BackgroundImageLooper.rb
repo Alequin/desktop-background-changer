@@ -89,6 +89,7 @@ class BackgroundImageLooper
   def set_background_image(image_path)
     #run system command to set background image
     system(@@SET_BACKGROUND_COMMAND + image_path + '"')
+    system('date "+%H:%M:%S"')
     puts "Image changed to #{image_path.scan(/[\w+,_,\s,-]+\.\w+$/)[0]}"
   end
 
