@@ -88,7 +88,7 @@ if(data == nil || data.size == 0)
 else
   $LOOPER.set_new_file_location(data[0].sub("\n",""))
   $LOOPER.image_switch_timer = data[1].sub("\n","").to_i
-  $LOOPER.image_selection_random = data[2].sub("\n","")
+  $LOOPER.image_selection_random = data[2].sub("\n","") == "true"
 end
 
 $LOOPER.load_current_file_images
